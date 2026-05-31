@@ -1,0 +1,38 @@
+name: CI Download Drive File
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install gdown
+        run: pip install gdown
+
+      - name: Download file from Google Drive
+        run: gdown "1GkqWwmB0F_IJ9v9ZiwI6-MYwGk9dP1vJ"
+
+      - name: Verify Download
+        run: |
+          echo "Listing files in the current directory:"
+          ls -lh
+
+      # NEW STEP: This saves the file so you can download it from GitHub
+      - name: Upload downloaded video as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-drive-video
+          path: "*.mp4" # This grabs any .mp4 file in the directory
