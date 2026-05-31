@@ -1,38 +1,38 @@
-name: CI Download Drive File
+name: Download and Save to Repo
 
-# Controls when the workflow will run
+# It is best to only trigger this manually. 
+# If triggered on "push", saving the file to the repo will create a new push, 
+# which could accidentally trigger an infinite loop of workflows!
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    # IMPORTANT: You must grant the action permission to write/push to your repository
+    permissions:
+      contents: write
 
     steps:
-      # 1. Checks-out your repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v4
 
-      # 2. Set up Python (required to install gdown)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      # 3. Install gdown
       - name: Install gdown
         run: pip install gdown
 
-      # 4. Download the file using its Google Drive ID
       - name: Download file from Google Drive
         run: gdown "1GkqWwmB0F_IJ9v9ZiwI6-MYwGk9dP1vJ"
 
-      # 5. Verify the file was downloaded successfully
-      - name: Verify Download
+      # This step configures Git, adds the downloaded file, and pushes it to your main branch
+      - name: Commit and push file to repository
         run: |
-          echo "Listing files in the current directory:"
-          ls -lh
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add "*.mp4"
+          git commit -m "Add downloaded Google Drive video"
+          git push
